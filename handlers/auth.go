@@ -132,7 +132,7 @@ func buildAuthURL(state string) string {
 	params.Add("client_key", config.ClientKey)
 	params.Add("redirect_uri", config.RedirectURI)
 	params.Add("response_type", "code")
-	params.Add("scope", "user.info.basic,user.info.profile,user.info.stats,video.list")
+	params.Add("scope", "user.info.basic,user.info.profile,user.info.stats,video.list,video.upload,video.publish")
 	params.Add("state", state)
 
 	authURL := fmt.Sprintf("%s?%s", config.AuthURL, params.Encode())
@@ -141,7 +141,7 @@ func buildAuthURL(state string) string {
 	config.DebugLog("  - client_key: %s", config.ClientKey)
 	config.DebugLog("  - redirect_uri: %s", config.RedirectURI)
 	config.DebugLog("  - response_type: code")
-	config.DebugLog("  - scope: user.info.basic,user.info.profile,user.info.stats,video.list")
+	config.DebugLog("  - scope: user.info.basic,user.info.profile,user.info.stats,video.list,video.upload,video.publish")
 	config.DebugLog("  - state: %s", state)
 	config.DebugLog("  - Final URL: %s", authURL)
 
