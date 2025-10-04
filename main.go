@@ -28,6 +28,7 @@ func main() {
 	router.HandleFunc("/auth", handlers.AuthHandler).Methods("GET")
 	router.HandleFunc("/callback", handlers.CallbackHandler).Methods("GET")
 	router.HandleFunc("/refresh", handlers.RefreshTokenHandler).Methods("POST")
+	router.HandleFunc("/user", handlers.UserInfoHandler).Methods("GET")
 
 	// Start server
 	port := ":" + config.ServerPort

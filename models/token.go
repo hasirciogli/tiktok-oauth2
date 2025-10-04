@@ -31,20 +31,20 @@ type AuthState struct {
 
 // TikTok User Object (from User Info API)
 type UserInfo struct {
-	OpenID           string `json:"open_id"`
-	UnionID          string `json:"union_id"`
-	AvatarURL        string `json:"avatar_url"`
-	AvatarURL100     string `json:"avatar_url_100"`
-	AvatarLargeURL   string `json:"avatar_large_url"`
-	DisplayName      string `json:"display_name"`
-	BioDescription   string `json:"bio_description"`
-	ProfileDeepLink  string `json:"profile_deep_link"`
-	IsVerified       bool   `json:"is_verified"`
-	Username         string `json:"username"`
-	FollowerCount    int64  `json:"follower_count"`
-	FollowingCount   int64  `json:"following_count"`
-	LikesCount       int64  `json:"likes_count"`
-	VideoCount       int64  `json:"video_count"`
+	OpenID          string `json:"open_id"`
+	UnionID         string `json:"union_id"`
+	AvatarURL       string `json:"avatar_url"`
+	AvatarURL100    string `json:"avatar_url_100"`
+	AvatarLargeURL  string `json:"avatar_large_url"`
+	DisplayName     string `json:"display_name"`
+	BioDescription  string `json:"bio_description"`
+	ProfileDeepLink string `json:"profile_deep_link"`
+	IsVerified      bool   `json:"is_verified"`
+	Username        string `json:"username"`
+	FollowerCount   int64  `json:"follower_count"`
+	FollowingCount  int64  `json:"following_count"`
+	LikesCount      int64  `json:"likes_count"`
+	VideoCount      int64  `json:"video_count"`
 }
 
 // TikTok User Info API Response

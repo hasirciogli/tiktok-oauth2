@@ -119,7 +119,7 @@ func buildAuthURL(state string) string {
 	params.Add("client_key", config.ClientKey)
 	params.Add("redirect_uri", config.RedirectURI)
 	params.Add("response_type", "code")
-	params.Add("scope", "user.info.basic,video.list")
+	params.Add("scope", "user.info.basic,user.info.profile,user.info.stats,video.list")
 	params.Add("state", state)
 
 	return fmt.Sprintf("%s?%s", config.AuthURL, params.Encode())

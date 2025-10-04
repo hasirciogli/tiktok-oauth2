@@ -56,11 +56,26 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return success response with token data
+	// Fetch user info using the access token
+	userInfo, err := fetchUserInfo(tokenData.AccessToken)
+	if err != nil {
+		// Log error but don't fail the entire request
+		// User can still get token and fetch user info separately
+		fmt.Printf("Warning: Failed to fetch user info: %v\n", err)
+		userInfo = &models.UserInfo{} // Empty user info
+	}
+
+	// Create combined response
+	authResponse := models.AuthResponse{
+		Token:    *tokenData,
+		UserInfo: *userInfo,
+	}
+
+	// Return success response with token and user data
 	utils.WriteJSONResponse(w, http.StatusOK, models.APIResponse{
 		Success: true,
 		Message: "Authentication successful",
-		Data:    tokenData,
+		Data:    authResponse,
 	})
 }
 
@@ -95,4 +110,38 @@ func exchangeCodeForToken(code string) (*models.TokenResponseData, error) {
 	}
 
 	return &tokenResp.Data, nil
+}
+
+// fetchUserInfo fetches user information from TikTok API
+func fetchUserInfo(accessToken string) (*models.UserInfo, error) {
+	// Create HTTP client
+	client := utils.NewHTTPClient("https://open.tiktokapis.com")
+
+	// Create request
+	req, err := http.NewRequest("GET", "/v2/user/info/?fields=open_id,union_id,avatar_url,avatar_url_100,avatar_large_url,display_name,bio_description,profile_deep_link,is_verified,username,follower_count,following_count,likes_count,video_count", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Set authorization header
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	// Make request
+	resp, err := client.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+
+	// Parse response
+	var userResp models.UserInfoResponse
+	if err := utils.ReadJSONResponse(resp, &userResp); err != nil {
+		return nil, fmt.Errorf("failed to parse user info response: %w", err)
+	}
+
+	// Check for API errors
+	if userResp.ErrorCode != 0 {
+		return nil, fmt.Errorf("TikTok API error: %s", userResp.Description)
+	}
+
+	return &userResp.Data, nil
 }

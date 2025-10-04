@@ -12,14 +12,14 @@ import (
 
 // HTTPClient wrapper for TikTok API calls
 type HTTPClient struct {
-	client  *http.Client
+	Client  *http.Client
 	baseURL string
 }
 
 // NewHTTPClient creates a new HTTP client
 func NewHTTPClient(baseURL string) *HTTPClient {
 	return &HTTPClient{
-		client: &http.Client{
+		Client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 		baseURL: baseURL,
@@ -37,7 +37,7 @@ func (c *HTTPClient) PostForm(endpoint string, data url.Values) (*http.Response,
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := c.client.Do(req)
+	resp, err := c.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
