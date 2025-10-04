@@ -49,12 +49,16 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Exchange authorization code for access token
 	tokenData, err := exchangeCodeForToken(code)
 	if err != nil {
+		fmt.Printf("❌ Token exchange error: %v\n", err)
 		utils.WriteJSONResponse(w, http.StatusInternalServerError, models.APIResponse{
 			Success: false,
 			Error:   "Failed to exchange code for token: " + err.Error(),
 		})
 		return
 	}
+
+	// Debug: Log token data
+	fmt.Printf("✅ Token data received: %+v\n", tokenData)
 
 	// Fetch user info using the access token
 	userInfo, err := fetchUserInfo(tokenData.AccessToken)
@@ -93,19 +97,31 @@ func exchangeCodeForToken(code string) (*models.TokenResponseData, error) {
 	formData.Add("redirect_uri", config.RedirectURI)
 
 	// Make request to TikTok token endpoint
+	fmt.Printf("🔄 Making token request to: %s\n", config.TokenURL)
+	fmt.Printf("📝 Form data: %+v\n", formData)
+	
 	resp, err := client.PostForm(config.TokenURL, formData)
 	if err != nil {
+		fmt.Printf("❌ Token request failed: %v\n", err)
 		return nil, fmt.Errorf("token request failed: %w", err)
 	}
 
+	// Debug: Log response status and body
+	fmt.Printf("📊 Response status: %d\n", resp.StatusCode)
+	
 	// Parse response
 	var tokenResp models.TokenResponse
 	if err := utils.ReadJSONResponse(resp, &tokenResp); err != nil {
+		fmt.Printf("❌ Failed to parse token response: %v\n", err)
 		return nil, fmt.Errorf("failed to parse token response: %w", err)
 	}
 
+	// Debug: Log parsed response
+	fmt.Printf("📦 Parsed token response: %+v\n", tokenResp)
+
 	// Check for API errors
 	if tokenResp.ErrorCode != 0 {
+		fmt.Printf("❌ TikTok API error: %d - %s\n", tokenResp.ErrorCode, tokenResp.Description)
 		return nil, fmt.Errorf("TikTok API error: %s", tokenResp.Description)
 	}
 
