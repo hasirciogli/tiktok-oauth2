@@ -49,9 +49,20 @@ type UserInfo struct {
 
 // TikTok User Info API Response
 type UserInfoResponse struct {
-	Data        UserInfo `json:"data"`
-	ErrorCode   int      `json:"error_code"`
-	Description string   `json:"description"`
+	Data  UserInfoData `json:"data"`
+	Error ErrorObject  `json:"error"`
+}
+
+// TikTok User Info Data (contains user object)
+type UserInfoData struct {
+	User UserInfo `json:"user"`
+}
+
+// TikTok Error Object
+type ErrorObject struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	LogID   string `json:"log_id"`
 }
 
 // Combined response with token and user info

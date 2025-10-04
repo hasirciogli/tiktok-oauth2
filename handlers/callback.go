@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"tiktok-oauth2/config"
@@ -71,7 +73,7 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Fetch user info using the access token
 	config.DebugLog("👤 Fetching user info with access token: %s", tokenData.AccessToken)
-	userInfo, err := fetchUserInfo(tokenData.AccessToken)
+	userInfo, err := FetchUserInfo(tokenData.AccessToken)
 	if err != nil {
 		// Log error but don't fail the entire request
 		// User can still get token and fetch user info separately
@@ -125,9 +127,19 @@ func exchangeCodeForToken(code string) (*models.TokenResponseData, error) {
 	config.DebugLog("📊 Response status: %d", resp.StatusCode)
 	config.DebugLog("📋 Response headers: %+v", resp.Header)
 
+	// Read raw response body for debugging
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		config.DebugLog("❌ Failed to read response body: %v", err)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Log raw response
+	config.DebugLog("📄 Raw response body: %s", string(bodyBytes))
+
 	// Parse response
 	var tokenResp models.TokenResponse
-	if err := utils.ReadJSONResponse(resp, &tokenResp); err != nil {
+	if err := json.Unmarshal(bodyBytes, &tokenResp); err != nil {
 		config.DebugLog("❌ Failed to parse token response: %v", err)
 		return nil, fmt.Errorf("failed to parse token response: %w", err)
 	}
@@ -144,13 +156,13 @@ func exchangeCodeForToken(code string) (*models.TokenResponseData, error) {
 	return &tokenResp.Data, nil
 }
 
-// fetchUserInfo fetches user information from TikTok API
-func fetchUserInfo(accessToken string) (*models.UserInfo, error) {
+// FetchUserInfo fetches user information from TikTok API
+func FetchUserInfo(accessToken string) (*models.UserInfo, error) {
 	// Create HTTP client
 	client := utils.NewHTTPClient("https://open.tiktokapis.com")
 
 	// Create request
-	userInfoURL := "/v2/user/info/?fields=open_id,union_id,avatar_url,avatar_url_100,avatar_large_url,display_name,bio_description,profile_deep_link,is_verified,username,follower_count,following_count,likes_count,video_count"
+	userInfoURL := "https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,avatar_url_100,avatar_large_url,display_name,bio_description,profile_deep_link,is_verified,username,follower_count,following_count,likes_count,video_count"
 	config.DebugLog("👤 Fetching user info from: %s", userInfoURL)
 
 	req, err := http.NewRequest("GET", userInfoURL, nil)
@@ -185,10 +197,10 @@ func fetchUserInfo(accessToken string) (*models.UserInfo, error) {
 	config.DebugLog("📦 Parsed user info response: %+v", userResp)
 
 	// Check for API errors
-	if userResp.ErrorCode != 0 {
-		config.DebugLog("❌ TikTok User Info API error: %d - %s", userResp.ErrorCode, userResp.Description)
-		return nil, fmt.Errorf("TikTok API error: %s", userResp.Description)
+	if userResp.Error.Code != "ok" {
+		config.DebugLog("❌ TikTok User Info API error: %s - %s", userResp.Error.Code, userResp.Error.Message)
+		return nil, fmt.Errorf("TikTok API error: %s", userResp.Error.Message)
 	}
 
-	return &userResp.Data, nil
+	return &userResp.Data.User, nil
 }
