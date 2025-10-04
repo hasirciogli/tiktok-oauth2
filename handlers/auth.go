@@ -16,6 +16,7 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	// Generate random state for CSRF protection
 	state, err := generateRandomState()
 	if err != nil {
+		config.DebugLog("❌ Failed to generate state parameter: %v", err)
 		utils.WriteJSONResponse(w, http.StatusInternalServerError, models.APIResponse{
 			Success: false,
 			Error:   "Failed to generate state parameter",
@@ -29,8 +30,11 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Build authorization URL
 	authURL := buildAuthURL(state)
+	config.DebugLog("🔗 Generated auth URL: %s", authURL)
+	config.DebugLog("🛡️ Generated state: %s", state)
 
 	// Redirect to TikTok OAuth page
+	config.DebugLog("↗️ Redirecting to TikTok OAuth page")
 	http.Redirect(w, r, authURL, http.StatusFound)
 }
 
@@ -122,5 +126,15 @@ func buildAuthURL(state string) string {
 	params.Add("scope", "user.info.basic,user.info.profile,user.info.stats,video.list")
 	params.Add("state", state)
 
-	return fmt.Sprintf("%s?%s", config.AuthURL, params.Encode())
+	authURL := fmt.Sprintf("%s?%s", config.AuthURL, params.Encode())
+
+	config.DebugLog("🔧 Building auth URL with params:")
+	config.DebugLog("  - client_key: %s", config.ClientKey)
+	config.DebugLog("  - redirect_uri: %s", config.RedirectURI)
+	config.DebugLog("  - response_type: code")
+	config.DebugLog("  - scope: user.info.basic,user.info.profile,user.info.stats,video.list")
+	config.DebugLog("  - state: %s", state)
+	config.DebugLog("  - Final URL: %s", authURL)
+
+	return authURL
 }

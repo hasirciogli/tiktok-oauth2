@@ -15,6 +15,13 @@ func main() {
 	// Load configuration
 	config.LoadConfig()
 
+	// Log debug status
+	if config.Debug {
+		log.Println("🐛 DEBUG mode enabled - detailed logging active")
+	} else {
+		log.Println("ℹ️ DEBUG mode disabled - set DEBUG=true to enable detailed logging")
+	}
+
 	// Create router
 	router := mux.NewRouter()
 
