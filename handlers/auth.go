@@ -91,20 +91,29 @@ func RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check for errors
-	if tokenResp.ErrorCode != 0 {
+	// Check if we got a valid access token
+	if tokenResp.AccessToken == "" {
 		utils.WriteJSONResponse(w, http.StatusBadRequest, models.APIResponse{
 			Success: false,
-			Error:   fmt.Sprintf("TikTok API error: %s", tokenResp.Description),
+			Error:   "No access token received",
 		})
 		return
+	}
+
+	// Convert to TokenResponseData format
+	tokenData := models.TokenResponseData{
+		AccessToken:      tokenResp.AccessToken,
+		ExpiresIn:        tokenResp.ExpiresIn,
+		OpenID:           tokenResp.OpenID,
+		RefreshToken:     tokenResp.RefreshToken,
+		RefreshExpiresIn: tokenResp.RefreshExpiresIn,
 	}
 
 	// Return success response
 	utils.WriteJSONResponse(w, http.StatusOK, models.APIResponse{
 		Success: true,
 		Message: "Token refreshed successfully",
-		Data:    tokenResp.Data,
+		Data:    tokenData,
 	})
 }
 

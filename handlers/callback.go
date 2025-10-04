@@ -147,13 +147,22 @@ func exchangeCodeForToken(code string) (*models.TokenResponseData, error) {
 	// Debug: Log parsed response
 	config.DebugLog("📦 Parsed token response: %+v", tokenResp)
 
-	// Check for API errors
-	if tokenResp.ErrorCode != 0 {
-		config.DebugLog("❌ TikTok API error: %d - %s", tokenResp.ErrorCode, tokenResp.Description)
-		return nil, fmt.Errorf("TikTok API error: %s", tokenResp.Description)
+	// Check if we got a valid access token
+	if tokenResp.AccessToken == "" {
+		config.DebugLog("❌ No access token received")
+		return nil, fmt.Errorf("no access token received")
 	}
 
-	return &tokenResp.Data, nil
+	// Convert to TokenResponseData format
+	tokenData := &models.TokenResponseData{
+		AccessToken:      tokenResp.AccessToken,
+		ExpiresIn:        tokenResp.ExpiresIn,
+		OpenID:           tokenResp.OpenID,
+		RefreshToken:     tokenResp.RefreshToken,
+		RefreshExpiresIn: tokenResp.RefreshExpiresIn,
+	}
+
+	return tokenData, nil
 }
 
 // FetchUserInfo fetches user information from TikTok API

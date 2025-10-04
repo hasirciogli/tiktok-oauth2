@@ -9,11 +9,15 @@ type TokenResponseData struct {
 	RefreshExpiresIn int64  `json:"refresh_expires_in"`
 }
 
-// TikTok OAuth2 Token Response
+// TikTok OAuth2 Token Response (Direct format from TikTok API)
 type TokenResponse struct {
-	Data        TokenResponseData `json:"data"`
-	ErrorCode   int               `json:"error_code"`
-	Description string            `json:"description"`
+	AccessToken      string `json:"access_token"`
+	ExpiresIn        int64  `json:"expires_in"`
+	OpenID           string `json:"open_id"`
+	RefreshToken     string `json:"refresh_token"`
+	RefreshExpiresIn int64  `json:"refresh_expires_in"`
+	Scope            string `json:"scope"`
+	TokenType        string `json:"token_type"`
 }
 
 // TikTok OAuth2 Error Response
